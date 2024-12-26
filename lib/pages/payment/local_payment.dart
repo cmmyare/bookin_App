@@ -7,7 +7,7 @@ import 'package:booking/components/Bar_iconst.dart';
 import 'package:booking/pages/local_model/local_flight_model.dart';
 
 class LocalPaymentPage extends StatefulWidget {
-  final Flight flight;
+  final FlightL flight;
 
   const LocalPaymentPage({Key? key, required this.flight}) : super(key: key);
 

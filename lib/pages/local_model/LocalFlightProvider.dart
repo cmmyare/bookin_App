@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:booking/pages/local_model/local_flight_model.dart';
 
 class LocalFlightProvider extends ChangeNotifier {
-  Flight? _selectedFlight;
+  FlightL? _selectedFlight;
 
-  Flight? get selectedFlight => _selectedFlight;
+  FlightL? get selectedFlight => _selectedFlight;
 
-  void selectFlight(Flight flight) {
+  void selectFlight(FlightL flight) {
     _selectedFlight = flight;
     notifyListeners();
   }

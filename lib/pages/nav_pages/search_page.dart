@@ -1,5 +1,17 @@
+import 'package:booking/pages/model/FlightSelectionProvider.dart';
+import 'package:booking/pages/payment/PaymentPage.dart';
+import 'package:booking/pages/payment/local_payment.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:booking/pages/local_model/LocalFlightProvider.dart';
+import 'package:booking/pages/local_model/local_flight_model.dart';
+import 'package:booking/pages/payment/local_payment.dart';
+import 'package:provider/provider.dart';
+
+import 'package:booking/pages/model/FlightSelectionProvider.dart';
+import 'package:booking/pages/model/inter_flight_model.dart';
+// LocalPaymentPage for local flights
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -22,19 +34,26 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<void> _fetchFlights() async {
     try {
-      // Fetch data from interFlight collection
+      // Fetch data from international flights collection
       final interFlightSnapshot =
           await FirebaseFirestore.instance.collection('interFlight').get();
       final interFlightData = interFlightSnapshot.docs
-          .map((doc) =>
-              {...doc.data(), 'id': doc.id, 'source': 'International flight'})
+          .map((doc) => {
+                ...doc.data(),
+                'id': doc.id,
+                'source': 'International flight',
+              })
           .toList();
 
-      // Fetch data from flights collection
+      // Fetch data from local flights collection
       final flightsSnapshot =
           await FirebaseFirestore.instance.collection('flights').get();
       final flightsData = flightsSnapshot.docs
-          .map((doc) => {...doc.data(), 'id': doc.id, 'source': 'Local flight'})
+          .map((doc) => {
+                ...doc.data(),
+                'id': doc.id,
+                'source': 'Local flight',
+              })
           .toList();
 
       // Combine both collections
@@ -119,11 +138,104 @@ class _SearchPageState extends State<SearchPage> {
                                   Text("Source: ${flight['source']}"),
                                 ],
                               ),
-                              trailing: Text(
-                                "\$${flight['price'] ?? 'N/A'}",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
+                              trailing: SizedBox(
+                                width: 100, // Limit width to prevent overflow
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "\$${flight['price'] ?? 'N/A'}",
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (flight['source'] ==
+                                        'International flight')
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.white,
+                                            foregroundColor: Colors.blue,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                            ),
+                                            elevation: 2,
+                                            minimumSize: const Size(
+                                                80, 30), // Set a minimum size
+                                          ),
+                                          onPressed: () {
+                                            final selectedFlight = Flight(
+                                              flightId: flight['id'],
+                                              fromCity: flight['fromCity'],
+                                              toCity: flight['toCity'],
+                                              airplaneName:
+                                                  flight['airplaneName'],
+                                              flightNumber:
+                                                  flight['flightNumber'],
+                                              date: flight['date'],
+                                              time: flight['time'],
+                                              hasTransit: flight['hasTransit'],
+                                              transitCity:
+                                                  flight['transitCity'] ?? '',
+                                              transitTime:
+                                                  flight['transitTime'] ?? '',
+                                              price: double.parse(
+                                                  flight['price'].toString()),
+                                            );
+
+                                            Provider.of<FlightSelectionProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .selectFlight(selectedFlight);
+
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    PaymentPage(
+                                                        flight: selectedFlight),
+                                              ),
+                                            );
+                                          },
+                                          child: const Text("Book Now",
+                                              style: TextStyle(fontSize: 10)),
+                                        ),
+                                      ),
+                                    if (flight['source'] == 'Local flight')
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            minimumSize: const Size(
+                                                80, 30), // Set a minimum size
+                                          ),
+                                          onPressed: () {
+                                            final selectedFlight =
+                                                FlightL.fromDocument(
+                                                    flight, flight['id']);
+
+                                            Provider.of<LocalFlightProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .selectFlight(selectedFlight);
+
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LocalPaymentPage(
+                                                        flight: selectedFlight),
+                                              ),
+                                            );
+                                          },
+                                          child: const Text("Book Now",
+                                              style: TextStyle(fontSize: 10)),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             ),

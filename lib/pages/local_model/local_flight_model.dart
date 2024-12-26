@@ -1,5 +1,5 @@
 // pages/local_model/local_flight_model.dart
-class Flight {
+class FlightL {
   final String id;
   final String fromCity;
   final String toCity;
@@ -9,7 +9,7 @@ class Flight {
   final String time;
   final double price;
 
-  Flight({
+  FlightL({
     required this.id,
     required this.fromCity,
     required this.toCity,
@@ -20,8 +20,8 @@ class Flight {
     required this.price,
   });
 
-  factory Flight.fromDocument(Map<String, dynamic> doc, String id) {
-    return Flight(
+  factory FlightL.fromDocument(Map<String, dynamic> doc, String id) {
+    return FlightL(
       id: id,
       fromCity: doc['fromCity'],
       toCity: doc['toCity'],

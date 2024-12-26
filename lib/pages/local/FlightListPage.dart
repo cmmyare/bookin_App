@@ -114,7 +114,7 @@ class _FlightListPageState extends State<FlightListPage> {
                     itemCount: flights.length,
                     itemBuilder: (context, index) {
                       final flightDoc = flights[index];
-                      final flight = Flight.fromDocument(
+                      final flight = FlightL.fromDocument(
                           flightDoc.data() as Map<String, dynamic>,
                           flightDoc.id);
 
